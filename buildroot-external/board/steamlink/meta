@@ -1,0 +1,12 @@
+BOARD_ID=steamlink
+BOARD_NAME="Valve Steam Link"
+CHASSIS=embedded
+# Valve's existing bootloader boots the factory-test environment, which then kexecs our Linux kernel.
+BOOTLOADER=none
+KERNEL_FILE=zImage
+PARTITION_TABLE_TYPE=mbr
+BOOT_SIZE=32M
+BOOT_SPL=false
+BOOT_ENV_SIZE=0
+SUPERVISOR_MACHINE=steamlink
+SUPERVISOR_ARCH=armv7
