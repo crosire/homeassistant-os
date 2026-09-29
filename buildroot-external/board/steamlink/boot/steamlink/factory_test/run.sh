@@ -1,17 +1,25 @@
 #!/bin/sh
 
-# Required to prevent factory reset after a few reboots.
+ROOT=/mnt/disk
+
+# Prevent factory reset after a few reboots.
 fts-set steamlink.crashcounter 0
 
-mkdir -p /mnt/disk/proc /mnt/disk/sys /mnt/disk/dev
-mount -t proc proc /mnt/disk/proc
-mount -o rbind /sys /mnt/disk/sys
-mount -o rbind /dev /mnt/disk/dev
+# Mount devices and load the "kexec" kernel module.
+mkdir -p \
+	$ROOT/proc \
+	$ROOT/sys \
+	$ROOT/dev
+mount -t proc proc $ROOT/proc
+mount -o rbind /sys $ROOT/sys
+mount -o rbind /dev $ROOT/dev
 
-insmod /mnt/disk/kexec_load.ko
+insmod $ROOT/kexec_load.ko
 
-bootargs_a="root=PARTUUID=48617373-06 rootfstype=erofs ro rauc.slot=A"
-cmdline="${bootargs_a} rootwait zram.enabled=1 zram.num_devices=3 fsck.repair=yes cgroup_enable=memory console=ttyS0,115200n8 usbcore.autosuspend=-1"
+# Execute the kernel.
+BOOTARGS_A="root=PARTUUID=48617373-06 rootfstype=erofs ro rauc.slot=A"
+BOOTARGS_B="root=PARTUUID=48617373-08 rootfstype=erofs ro rauc.slot=B"
+DEFAULT_CMDLINE="rootwait zram.enabled=1 zram.num_devices=3 fsck.repair=yes cgroup_enable=memory usbcore.autosuspend=-1"
 
-chroot /mnt/disk/ /kexec -l /zImage --initrd /initramfs.cpio --dtb /berlin2cd-valve-steamlink.dtb --command-line "${cmdline}"
-chroot /mnt/disk/ /kexec -e
+chroot $ROOT/ /kexec -l /zImage --dtb /berlin2cd-valve-steamlink.dtb --command-line "${BOOTARGS_A} ${DEFAULT_CMDLINE}"
+chroot $ROOT/ /kexec -e
