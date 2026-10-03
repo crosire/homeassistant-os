@@ -4,6 +4,18 @@ Home Assistant Operating System (formerly HassOS) is a Linux based operating sys
 
 Home Assistant Operating System uses Docker as its container engine. By default it deploys the Home Assistant Supervisor as a container. Home Assistant Supervisor in turn uses the Docker container engine to control Home Assistant Core and Apps in separate containers. Home Assistant Operating System is **not** based on a regular Linux distribution like Ubuntu. It is built using [Buildroot](https://buildroot.org/) and it is optimized to run Home Assistant. It targets single board compute (SBC) devices like the Raspberry Pi or ODROID but also supports x86-64 systems with UEFI.
 
+This fork adds support for the Valve Steam Link as a target device.
+1. To build: `scripts/enter.sh make steamlink`
+2. Flash the resulting `output/images/haos_steamlink-????.img.xz` onto an USB stick (replace `/dev/s??` with the USB stick device): `xzcat output/images/haos_steamlink-????.img.xz | sudo dd of=/dev/s?? bs=4M status=progress conv=fsync`
+3. (Optional) [Enable SSH access on the Steam Link](https://github.com/ValveSoftware/steamlink-sdk/tree/master#ssh-access), and use that to patch [line 134](https://github.com/ValveSoftware/steamlink-sdk/blob/62b4d098d1472c3534dd098ca2a0e0e10712f1c6/rootfs/etc/init.d/startup/S01config#L134) `/etc/init.d/startup/S01config` on the stock Linux OS from `sleep 2` to e.g. `sleep 5`. Otherwise it sometimes does not enumerate the USB stick partitions fast enough and skips booting into the Home Assistant OS. This was certainly a pain to figure out =)
+4. Plug the USB stick into the Steam Link. On the next power cycle it should now boot into Home Assistant OS, and continue to do so until the USB stick is removed again.
+
+References:
+- https://feyor.sh/blog/infecting-the-steam-link-with-nixos/
+- https://heap.ovh/getting-linux-on-valve-steam-link.html
+- https://github.com/ValveSoftware/steamlink-sdk/
+- https://github.com/lukas2511/steamlink-sdk/
+
 [![Home Assistant - A project from the Open Home Foundation](https://www.openhomefoundation.org/badges/home-assistant.png)](https://www.openhomefoundation.org/)
 
 ## Features
@@ -35,9 +47,6 @@ The Home Assistant Operating System documentation can be found on the [Home Assi
 
 ### Components
 
-- **Bootloader:**
-  - [GRUB](https://www.gnu.org/software/grub/) for devices that support UEFI
-  - [U-Boot](https://www.denx.de/wiki/U-Boot) for devices that don't support UEFI
 - **Operating System:**
   - [Buildroot](https://buildroot.org/) LTS Linux
 - **File Systems:**
@@ -49,9 +58,3 @@ The Home Assistant Operating System documentation can be found on the [Home Assi
   - [RAUC](https://rauc.io/) for Over The Air (OTA) and USB updates
 - **Security:**
   - [AppArmor](https://apparmor.net/) Linux kernel security module
-
-### Development builds
-
-The Development build GitHub Action Workflow is a manually triggered workflow
-which creates Home Assistant OS development builds. The development builds are
-available at [https://os-artifacts.home-assistant.io/index.html](https://os-artifacts.home-assistant.io/index.html).
