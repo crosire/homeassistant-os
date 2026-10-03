@@ -1,1 +1,1 @@
-zram.enabled=1 zram.num_devices=3 fsck.repair=yes cgroup_enable=memory usbcore.autosuspend=-1
+zram.enabled=1 zram.num_devices=3 fsck.repair=yes usbcore.autosuspend=-1
